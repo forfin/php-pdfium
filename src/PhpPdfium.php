@@ -51,6 +51,47 @@ final class PhpPdfium
         return new Document($docHandler);
     }
 
+    /**
+     * @param resource $resource
+     */
+    public function loadDocumentFromResource($resource): ?Document
+    {
+        $stat = fstat($resource);
+        if (false === $stat) {
+            return null;
+        }
+        $fileLen = $stat['size'];
+
+        $fileAccess = $this->ffi->new('FPDF_FILEACCESS');
+        $fileAccess->m_FileLen = $fileLen;
+        $fileAccess->m_Param = null;
+
+        $callback = function ($param, $position, $pBuf, $size) use ($resource): int {
+            if (-1 === fseek($resource, $position)) {
+                return 0;
+            }
+            $data = fread($resource, $size);
+            if (false === $data) {
+                return 0;
+            }
+            $readSize = strlen($data);
+            if ($readSize > 0) {
+                \FFI::memcpy($pBuf, $data, $readSize);
+            }
+
+            return 1;
+        };
+
+        $fileAccess->m_GetBlock = $callback;
+
+        $docHandler = $this->ffi->FPDF_LoadCustomDocument(\FFI::addr($fileAccess), null);
+        if (null === $docHandler) {
+            return null;
+        }
+
+        return new Document($docHandler);
+    }
+
     public function decodeUTF16toUT8(string $utf16String): string
     {
         $text = mb_convert_encoding($utf16String, 'UTF-8', 'UTF-16LE');

@@ -33,6 +33,13 @@ final class PhpPfiumTest extends TestCase
         self::assertSame(1, $document->getPageCount());
     }
 
+    public function testDocumentLoadingFromResource(): void
+    {
+        $document = $this->loadDocumentFromResource('cerfa_13750-05');
+        self::assertInstanceOf(Document::class, $document);
+        self::assertSame(1, $document->getPageCount());
+    }
+
     public function testPageLoading(): void
     {
         $document = $this->loadDocument('cerfa_13750-05');

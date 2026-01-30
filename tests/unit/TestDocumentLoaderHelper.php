@@ -14,4 +14,13 @@ trait TestDocumentLoaderHelper
         return PhpPdfium::lib()
             ->loadDocument(dirname(__DIR__) . "/resources/$name.pdf");
     }
+
+    private function loadDocumentFromResource(string $name): Document
+    {
+        $path = dirname(__DIR__) . "/resources/$name.pdf";
+        $resource = fopen($path, 'r');
+
+        return PhpPdfium::lib()
+            ->loadDocumentFromResource($resource);
+    }
 }
