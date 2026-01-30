@@ -70,15 +70,28 @@ final class PhpPdfium
             if (-1 === fseek($resource, $position)) {
                 return 0;
             }
-            $data = fread($resource, $size);
-            if (false === $data) {
-                return 0;
-            }
-            $readSize = strlen($data);
-            if ($readSize > 0) {
-                \FFI::memcpy($pBuf, $data, $readSize);
+
+            $buffer = '';
+            $totalRead = 0;
+            while ($totalRead < $size) {
+                $data = fread($resource, $size - $totalRead);
+                if (false === $data) {
+                    return 0;
+                }
+                if ('' === $data) {
+                    // End of file - check if we read enough
+                    break;
+                }
+                $buffer .= $data;
+                $totalRead += strlen($data);
             }
 
+            // Only succeed if we read exactly the requested size
+            if ($totalRead !== $size) {
+                return 0;
+            }
+
+            \FFI::memcpy($pBuf, $buffer, $size);
             return 1;
         };
 

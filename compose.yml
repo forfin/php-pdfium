@@ -12,6 +12,8 @@ services:
           - linux/arm64
     volumes:
       - ./:/usr/php-pdfium
+    depends_on:
+      - s3
 
   # A specific image to build the pdfium library ourselves
   pdfium-lib:
@@ -24,3 +26,8 @@ services:
       x-bake:
         platforms:
           - linux/amd64 # Pdfium lib build only supports amd64 platform, arm64 build is still possible through cross compilation
+
+  s3:
+    image: adobe/s3mock:latest
+    environment:
+      - initialBuckets=test
