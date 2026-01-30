@@ -89,7 +89,14 @@ final class PhpPdfium
             return null;
         }
 
-        return new Document($docHandler);
+        // Keep the resource, callback, and fileAccess alive for the document's lifetime
+        $owningObject = (object) [
+            'resource' => $resource,
+            'callback' => $callback,
+            'fileAccess' => $fileAccess,
+        ];
+
+        return new Document($docHandler, $owningObject);
     }
 
     public function decodeUTF16toUT8(string $utf16String): string

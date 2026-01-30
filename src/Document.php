@@ -23,6 +23,7 @@ final class Document implements IteratorAggregate
 
     public function __construct(
         public readonly CData $handler,
+        private mixed $owningObject = null,
     ) {
         $this->ffi = PhpPdfium::lib()->FFI();
         $this->formFillInfo = $this->ffi->new('FPDF_FORMFILLINFO');
@@ -103,7 +104,7 @@ final class Document implements IteratorAggregate
     public function saveAsCopy(string $filename, int $saveFlag): bool
     {
         $dir = dirname($filename);
-        if (! is_dir($dir)) {
+        if (!is_dir($dir)) {
             mkdir($dir, 0777, true);
         }
         $fileWrite = $this->ffi->new('FPDF_FILEWRITE', false);
