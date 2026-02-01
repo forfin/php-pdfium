@@ -105,6 +105,53 @@ final class Page implements IteratorAggregate
         return (int) $this->ffi->FPDF_GetPageHeight($this->handler);
     }
 
+    public function getMediaBox(): ?Rect
+    {
+        return $this->getBox('FPDFPage_GetMediaBox');
+    }
+
+    public function getArtBox(): ?Rect
+    {
+        return $this->getBox('FPDFPage_GetArtBox');
+    }
+
+    public function getCropBox(): ?Rect
+    {
+        return $this->getBox('FPDFPage_GetCropBox');
+    }
+
+    public function getBleedBox(): ?Rect
+    {
+        return $this->getBox('FPDFPage_GetBleedBox');
+    }
+
+    public function getTrimBox(): ?Rect
+    {
+        return $this->getBox('FPDFPage_GetTrimBox');
+    }
+
+    private function getBox(string $functionName): ?Rect
+    {
+        $left = $this->ffi->new('float[1]');
+        $bottom = $this->ffi->new('float[1]');
+        $right = $this->ffi->new('float[1]');
+        $top = $this->ffi->new('float[1]');
+
+        $result = $this->ffi->$functionName(
+            $this->handler,
+            \FFI::addr($left[0]),
+            \FFI::addr($bottom[0]),
+            \FFI::addr($right[0]),
+            \FFI::addr($top[0]),
+        );
+
+        if (0 === $result) {
+            return null;
+        }
+
+        return new Rect($left[0], $bottom[0], $right[0], $top[0]);
+    }
+
     public function getDocument(): Document
     {
         return $this->document;

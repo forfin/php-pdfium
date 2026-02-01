@@ -776,6 +776,12 @@ FPDFAnnot_GetFontSize(FPDF_FORMHANDLE hHandle,
                       FPDF_ANNOTATION annot,
                       float* value);
  FPDF_BOOL
+FPDFAnnot_SetFontColor(FPDF_FORMHANDLE handle,
+                       FPDF_ANNOTATION annot,
+                       unsigned int R,
+                       unsigned int G,
+                       unsigned int B);
+ FPDF_BOOL
 FPDFAnnot_GetFontColor(FPDF_FORMHANDLE hHandle,
                        FPDF_ANNOTATION annot,
                        unsigned int* R,
@@ -926,6 +932,10 @@ FPDF_MovePages(FPDF_DOCUMENT document,
  void
 FPDFPage_InsertObject(FPDF_PAGE page, FPDF_PAGEOBJECT page_object);
  FPDF_BOOL
+FPDFPage_InsertObjectAtIndex(FPDF_PAGE page,
+                             FPDF_PAGEOBJECT page_object,
+                             size_t index);
+ FPDF_BOOL
 FPDFPage_RemoveObject(FPDF_PAGE page, FPDF_PAGEOBJECT page_object);
  int FPDFPage_CountObjects(FPDF_PAGE page);
  FPDF_PAGEOBJECT FPDFPage_GetObject(FPDF_PAGE page,
@@ -994,6 +1004,10 @@ FPDFPageObjMark_GetParamIntValue(FPDF_PAGEOBJECTMARK mark,
                                  FPDF_BYTESTRING key,
                                  int* out_value);
  FPDF_BOOL
+FPDFPageObjMark_GetParamFloatValue(FPDF_PAGEOBJECTMARK mark,
+                                   FPDF_BYTESTRING key,
+                                   float* out_value);
+ FPDF_BOOL
 FPDFPageObjMark_GetParamStringValue(FPDF_PAGEOBJECTMARK mark,
                                     FPDF_BYTESTRING key,
                                     FPDF_WCHAR* buffer,
@@ -1011,6 +1025,12 @@ FPDFPageObjMark_SetIntParam(FPDF_DOCUMENT document,
                             FPDF_PAGEOBJECTMARK mark,
                             FPDF_BYTESTRING key,
                             int value);
+ FPDF_BOOL
+FPDFPageObjMark_SetFloatParam(FPDF_DOCUMENT document,
+                              FPDF_PAGEOBJECT page_object,
+                              FPDF_PAGEOBJECTMARK mark,
+                              FPDF_BYTESTRING key,
+                              float value);
  FPDF_BOOL
 FPDFPageObjMark_SetStringParam(FPDF_DOCUMENT document,
                                FPDF_PAGEOBJECT page_object,
@@ -1266,6 +1286,9 @@ FPDFGlyphPath_GetGlyphPathSegment(FPDF_GLYPHPATH glyphpath, int index);
 FPDFFormObj_CountObjects(FPDF_PAGEOBJECT form_object);
  FPDF_PAGEOBJECT
 FPDFFormObj_GetObject(FPDF_PAGEOBJECT form_object, unsigned long index);
+ FPDF_BOOL
+FPDFFormObj_RemoveObject(FPDF_PAGEOBJECT form_object,
+                         FPDF_PAGEOBJECT page_object);
 typedef struct FPDF_FILEWRITE_ {
   int version;
   int (*WriteBlock)(struct FPDF_FILEWRITE_* pThis,
@@ -1280,3 +1303,81 @@ FPDF_SaveWithVersion(FPDF_DOCUMENT document,
                      FPDF_FILEWRITE* pFileWrite,
                      FPDF_DWORD flags,
                      int fileVersion);
+ void FPDFPage_SetMediaBox(FPDF_PAGE page,
+                                                    float left,
+                                                    float bottom,
+                                                    float right,
+                                                    float top);
+ void FPDFPage_SetCropBox(FPDF_PAGE page,
+                                                   float left,
+                                                   float bottom,
+                                                   float right,
+                                                   float top);
+ void FPDFPage_SetBleedBox(FPDF_PAGE page,
+                                                    float left,
+                                                    float bottom,
+                                                    float right,
+                                                    float top);
+ void FPDFPage_SetTrimBox(FPDF_PAGE page,
+                                                   float left,
+                                                   float bottom,
+                                                   float right,
+                                                   float top);
+ void FPDFPage_SetArtBox(FPDF_PAGE page,
+                                                  float left,
+                                                  float bottom,
+                                                  float right,
+                                                  float top);
+ FPDF_BOOL FPDFPage_GetMediaBox(FPDF_PAGE page,
+                                                         float* left,
+                                                         float* bottom,
+                                                         float* right,
+                                                         float* top);
+ FPDF_BOOL FPDFPage_GetCropBox(FPDF_PAGE page,
+                                                        float* left,
+                                                        float* bottom,
+                                                        float* right,
+                                                        float* top);
+ FPDF_BOOL FPDFPage_GetBleedBox(FPDF_PAGE page,
+                                                         float* left,
+                                                         float* bottom,
+                                                         float* right,
+                                                         float* top);
+ FPDF_BOOL FPDFPage_GetTrimBox(FPDF_PAGE page,
+                                                        float* left,
+                                                        float* bottom,
+                                                        float* right,
+                                                        float* top);
+ FPDF_BOOL FPDFPage_GetArtBox(FPDF_PAGE page,
+                                                       float* left,
+                                                       float* bottom,
+                                                       float* right,
+                                                       float* top);
+ FPDF_BOOL
+FPDFPage_TransFormWithClip(FPDF_PAGE page,
+                           const FS_MATRIX* matrix,
+                           const FS_RECTF* clipRect);
+ void
+FPDFPageObj_TransformClipPath(FPDF_PAGEOBJECT page_object,
+                              double a,
+                              double b,
+                              double c,
+                              double d,
+                              double e,
+                              double f);
+ FPDF_CLIPPATH
+FPDFPageObj_GetClipPath(FPDF_PAGEOBJECT page_object);
+ int FPDFClipPath_CountPaths(FPDF_CLIPPATH clip_path);
+ int
+FPDFClipPath_CountPathSegments(FPDF_CLIPPATH clip_path, int path_index);
+ FPDF_PATHSEGMENT
+FPDFClipPath_GetPathSegment(FPDF_CLIPPATH clip_path,
+                            int path_index,
+                            int segment_index);
+ FPDF_CLIPPATH FPDF_CreateClipPath(float left,
+                                                            float bottom,
+                                                            float right,
+                                                            float top);
+ void FPDF_DestroyClipPath(FPDF_CLIPPATH clipPath);
+ void FPDFPage_InsertClipPath(FPDF_PAGE page,
+                                                       FPDF_CLIPPATH clipPath);
