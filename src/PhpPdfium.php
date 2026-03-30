@@ -102,12 +102,27 @@ final class PhpPdfium
             return null;
         }
 
-        // Keep the resource, callback, and fileAccess alive for the document's lifetime
-        $owningObject = (object) [
-            'resource' => $resource,
-            'callback' => $callback,
-            'fileAccess' => $fileAccess,
-        ];
+        // Keep the resource, callback, and fileAccess alive for the document's lifetime.
+        // Explicit cleanup is needed because the FFI trampoline created for m_GetBlock
+        // may hold a reference to the closure, preventing the stream resource from being
+        // closed via normal refcounting.
+        $owningObject = new class($resource, $callback, $fileAccess) {
+            public function __construct(
+                private mixed $resource,
+                private mixed $callback,
+                private mixed $fileAccess,
+            ) {
+            }
+
+            public function __destruct()
+            {
+                $this->fileAccess = null;
+                $this->callback = null;
+                if (is_resource($this->resource)) {
+                    fclose($this->resource);
+                }
+            }
+        };
 
         return new Document($docHandler, $owningObject);
     }

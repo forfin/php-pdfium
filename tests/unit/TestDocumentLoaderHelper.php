@@ -26,7 +26,7 @@ trait TestDocumentLoaderHelper
 
     private function loadDocumentFromStreamWrapper(string $name): Document
     {
-        if (!in_array('fake-remote', stream_get_wrappers(), true)) {
+        if (! in_array('fake-remote', stream_get_wrappers(), true)) {
             stream_wrapper_register('fake-remote', FakeRemoteStreamWrapper::class);
         }
 
