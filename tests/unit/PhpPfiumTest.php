@@ -65,9 +65,9 @@ final class PhpPfiumTest extends TestCase
         self::assertSame(792, $renderedImage->height);
     }
 
-    public function testFlattenRenderingFromS3(): void
+    public function testFlattenRenderingFromStreamWrapper(): void
     {
-        $document = $this->loadDocumentFromS3('version4pdf');
+        $document = $this->loadDocumentFromStreamWrapper('version4pdf');
         $page = $document->loadPage(0);
         $imageRenderer = new Page\VipsImageRenderer();
         $targetDir = dirname(__DIR__) . '/resources/generated';

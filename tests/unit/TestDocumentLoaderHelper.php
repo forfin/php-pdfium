@@ -24,29 +24,14 @@ trait TestDocumentLoaderHelper
             ->loadDocumentFromResource($resource);
     }
 
-    private function loadDocumentFromS3(string $name): Document
+    private function loadDocumentFromStreamWrapper(string $name): Document
     {
-        $s3Client = new \Aws\S3\S3Client([
-            'region' => 'us-west-2',
-            'version' => '2006-03-01',
-            'endpoint' => 'http://s3:9090',
-            'use_path_style_endpoint' => true,
-            'credentials' => false,
-        ]);
-        $path = dirname(__DIR__) . "/resources/$name.pdf";
-        $s3Client->putObject([
-            'Bucket' => 'test',
-            'Key' => $name,
-            'Body' => file_get_contents($path),
-        ]);
+        if (!in_array('fake-remote', stream_get_wrappers(), true)) {
+            stream_wrapper_register('fake-remote', FakeRemoteStreamWrapper::class);
+        }
 
-        $s3Client->registerStreamWrapperV2();
-        $context = stream_context_create([
-            's3' => [
-                'seekable' => true
-            ]
-        ]);
-        $resource = fopen("s3://test/$name", 'r', false, $context);
+        $path = dirname(__DIR__) . "/resources/$name.pdf";
+        $resource = fopen("fake-remote://$path", 'r');
 
         return PhpPdfium::lib()
             ->loadDocumentFromResource($resource);
